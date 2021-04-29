@@ -128,12 +128,7 @@
 		
 			$.getJSON("/_check", { text : txt },
 				function(data) {
-					rsval = data.result.finished;
-					if (rsval) {
-						$.getJSON("/success").done();
-					} else {
-						$.getJSON("/keep_going").done();
-					}
+
 				});
 		});
 	</script>
