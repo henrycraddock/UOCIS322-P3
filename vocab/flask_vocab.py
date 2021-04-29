@@ -111,7 +111,8 @@ def check():
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
 
-    rslt = {"finished" : len(matches) >= flask.session["target_count"]}
+    fin = len(matches) >= flask.session["target_count"]
+    rslt = {"finished" : fin}
     return flask.jsonify(result=rslt)
 
 
