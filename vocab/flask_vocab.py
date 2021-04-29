@@ -87,7 +87,7 @@ def check():
     app.logger.debug("Entering check")
 
     # The data we need, from form and from cookie
-    text = flask.request.form["attempt"]
+    text = request.args.get("text", type=str)
     jumble = flask.session["jumble"]
     matches = flask.session.get("matches", [])  # Default to empty list
 
@@ -111,11 +111,8 @@ def check():
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
 
-    # Choose page:  Solved enough, or keep going?
-    if len(matches) >= flask.session["target_count"]:
-       return flask.redirect(flask.url_for("success"))
-    else:
-       return flask.redirect(flask.url_for("keep_going"))
+    rslt = {"finished" : len(matches) >= flask.session["target_count"]}
+    return flask.jsonify(result=rslt)
 
 
 ###############
