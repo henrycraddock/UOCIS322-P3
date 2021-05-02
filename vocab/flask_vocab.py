@@ -5,6 +5,7 @@ from a scrambled string)
 """
 
 import flask
+from flask import request
 import logging
 
 # Our modules
@@ -12,7 +13,6 @@ from src.letterbag import LetterBag
 from src.vocab import Vocab
 from src.jumble import jumbled
 import src.config as config
-
 
 ###
 # Globals
@@ -53,6 +53,7 @@ def index():
     return flask.render_template('vocab.html')
 
 
+# Made obsolete
 @app.route("/keep_going")
 def keep_going():
     """
@@ -74,7 +75,7 @@ def success():
 #   a JSON request handler
 #######################
 
-@app.route("/_check", methods=["POST"])
+@app.route("/_check", methods=["GET"])
 def check():
     """
     User has submitted the form with a word ('attempt')
@@ -85,6 +86,12 @@ def check():
     already found.
     """
     app.logger.debug("Entering check")
+
+    # New default values
+    new_match = False
+    old_match = False
+    not_matched = False
+    not_word = False
 
     # The data we need, from form and from cookie
     text = request.args.get("text", type=str)
@@ -100,19 +107,21 @@ def check():
         # Cool, they found a new word
         matches.append(text)
         flask.session["matches"] = matches
+        new_match = True
     elif text in matches:
-        flask.flash("You already found {}".format(text))
+        old_match = True
     elif not matched:
-        flask.flash("{} isn't in the list of words".format(text))
+        not_matched = True
     elif not in_jumble:
-        flask.flash(
-            '"{}" can\'t be made from the letters {}'.format(text, jumble))
+        not_word = True
     else:
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
+    finished = len(matches) >= flask.session["target_count"]
 
-    fin = len(matches) >= flask.session["target_count"]
-    rslt = {"finished" : fin}
+    rslt = {"new_match": new_match, "old_match": old_match,
+            "not_word": not_word, "not_matched": not_matched,
+            "jumble": jumble, "finished": finished}
     return flask.jsonify(result=rslt)
 
 
@@ -142,6 +151,7 @@ def format_filt(something):
     the Jinja2 code
     """
     return "Not what you asked for"
+
 
 ###################
 #   Error handlers
