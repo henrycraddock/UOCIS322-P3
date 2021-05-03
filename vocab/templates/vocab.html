@@ -110,6 +110,12 @@
                         $(".message").html("");
                         $("#results").append(txt + "   ");
                         $("#attempt").val("");
+                        // Extra credit: Strike-through and gray-out matched words
+                        // Adapted from stackoverflow page and fit to suit this projects needs
+                        // https://stackoverflow.com/questions/15364298/select-element-by-exact-match-of-its-content
+                        $(".col-xs-2").filter(function() {
+                            return $.trim($(this).text()) === txt;
+                        }).css({"color": "gray", "text-decoration": "line-through"});
                     } else if (old_match) {
                         $(".message").html("");
                         $(".message").html(txt + " has already been found");
